@@ -1,0 +1,23 @@
+:host {
+  display: block;
+  width: 75px;
+  border: 1px solid #000;
+
+  .frame-rolls {
+    display: flex;
+    justify-content: flex-end;
+    padding-bottom: 10px;
+
+    div[class^="roll-"] {
+      padding: 5px;
+      border-left: 1px solid #000;
+      border-bottom: 1px solid #000;
+    }
+  }
+
+  .game-amount {
+    font-size: 24px;
+    padding: 5px;
+  }
+}
+

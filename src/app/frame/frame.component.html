@@ -1,0 +1,6 @@
+<div class="frame-rolls">
+  <div class="roll-1">{{ convertToPossibleStrike(rollOne) }}</div>
+  <div class="roll-2">{{ convertToPossibleSpare(rollTwo) }}</div>
+  <div class="roll-3" *ngIf="isLastFrame">{{ rollThree }}</div>
+</div>
+<div class="game-amount">{{ gameAmount }}</div>
