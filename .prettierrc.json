@@ -1,0 +1,19 @@
+{
+  "semi": true,
+  "singleQuote": false,
+  "quoteProps": "consistent",
+  "overrides": [
+    {
+      "files": "*.component.html",
+      "options": {
+        "parser": "angular"
+      }
+    },
+    {
+      "files": "*.html",
+      "options": {
+        "parser": "html"
+      }
+    }
+  ]
+}

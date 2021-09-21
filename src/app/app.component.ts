@@ -1,10 +1,15 @@
-import { Component } from '@angular/core';
+import { Component } from "@angular/core";
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+  selector: "app-root",
+  templateUrl: "./app.component.html",
+  styleUrls: ["./app.component.scss"],
 })
 export class AppComponent {
-  title = 'bowling-tdd';
+  public title = "bowling-tdd";
+  public foo = {
+    bar: "This is a bar.",
+    baz: { qux: "This is a qux" },
+    difficult: "to read",
+  };
 }
