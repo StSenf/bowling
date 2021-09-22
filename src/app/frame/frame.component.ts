@@ -39,10 +39,10 @@ export class FrameComponent {
   /** Number input of total game amount. */
   @Input() public gameAmount?: number;
 
-  private _frameAmount = 0;
-  private _rollOne: number;
-  private _rollTwo: number;
-  private _rollThree: number;
+  private _frameAmount = 0; // amount of struck pins in this frame
+  private _rollOne = 0;
+  private _rollTwo = 0;
+  private _rollThree = 0;
 
   /**
    * Converts the rolled number into a string.

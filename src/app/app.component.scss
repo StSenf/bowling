@@ -1,0 +1,7 @@
+.lane {
+  display: flex;
+
+  app-frame:not(:first-of-type) {
+    margin-left: -1px;
+  }
+}

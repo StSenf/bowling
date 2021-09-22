@@ -1,9 +1,13 @@
 <h1>Bowling game</h1>
 
-<app-frame
-  [rollOne]="0"
-  [rollTwo]="10"
-  [rollThree]="5"
-  [isLastFrame]="true"
-  [gameAmount]="78"
-></app-frame>
+<div class="lane">
+  <app-frame
+    *ngFor="let item of [].constructor(10); let i = index;"
+    [isLastFrame]="i === 9"
+    [rollOne]="getRollOneOfFrame(i)"
+    [rollTwo]="getRollTwoOfFrame(i)"
+    [rollThree]="getRollThreeOfFrame(i)"
+  ></app-frame>
+</div>
+
+<app-roll-button [isLastFrame]="true"></app-roll-button>
