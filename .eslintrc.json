@@ -44,7 +44,8 @@
         ],
         "max-len": ["error", { "code": 80 }],
         "@typescript-eslint/explicit-member-accessibility": ["error"],
-        "@typescript-eslint/adjacent-overload-signatures": ["off"]
+        "@typescript-eslint/adjacent-overload-signatures": ["off"],
+        "@typescript-eslint/unbound-method": ["off"]
       }
     },
     {

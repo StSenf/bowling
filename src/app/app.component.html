@@ -4,10 +4,15 @@
   <app-frame
     *ngFor="let item of [].constructor(10); let i = index;"
     [isLastFrame]="i === 9"
+    [frameAmount]="getFrameAmount(i)"
     [rollOne]="getRollOneOfFrame(i)"
     [rollTwo]="getRollTwoOfFrame(i)"
     [rollThree]="getRollThreeOfFrame(i)"
   ></app-frame>
 </div>
 
-<app-roll-button [isLastFrame]="true"></app-roll-button>
+<app-roll-button
+  [disabled]="isGameOver"
+  (rolledPin)="doMagic($event)"
+  [max]="currentFrameRemainingPins"
+></app-roll-button>

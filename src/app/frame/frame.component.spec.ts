@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 
 import { FrameComponent } from "./frame.component";
 
-describe("FrameComponent", () => {
+fdescribe("FrameComponent", () => {
   let component: FrameComponent;
   let fixture: ComponentFixture<FrameComponent>;
   let debugElement: DebugElement;
@@ -60,6 +60,7 @@ describe("FrameComponent", () => {
         () => {
           component.rollOne = 1;
           component.rollTwo = 9;
+          component.frameAmount = 10;
           fixture.detectChanges();
 
           const firstBox: HTMLElement = element.querySelector(".roll-1");
@@ -69,6 +70,18 @@ describe("FrameComponent", () => {
           expect(secondBox.innerHTML).toBe("/");
         }
       );
+
+      it("should render nothing if first roll was strike", () => {
+        component.rollOne = 10;
+        component.frameAmount = 10;
+        fixture.detectChanges();
+
+        const firstBox: HTMLElement = element.querySelector(".roll-1");
+        const secondBox: HTMLElement = element.querySelector(".roll-2");
+
+        expect(firstBox.innerHTML).toBe("X");
+        expect(secondBox.innerHTML).toBe("");
+      });
     });
 
     describe("third roll box", () => {
