@@ -1,7 +1,7 @@
 import { Component, Input } from "@angular/core";
 
 @Component({
-  selector: "app-frame",
+  selector: "bowling-frame",
   templateUrl: "./frame.component.html",
   styleUrls: ["./frame.component.scss"],
 })

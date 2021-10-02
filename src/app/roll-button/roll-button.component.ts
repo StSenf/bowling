@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 
 @Component({
-  selector: "app-roll-button",
+  selector: "bowling-roll-button",
   templateUrl: "./roll-button.component.html",
   styleUrls: ["./roll-button.component.scss"],
 })

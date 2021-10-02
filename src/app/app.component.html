@@ -1,18 +1,21 @@
 <h1>Bowling game</h1>
 
 <div class="lane">
-  <app-frame
+  <bowling-frame
     *ngFor="let item of [].constructor(10); let i = index;"
     [isLastFrame]="i === 9"
+    [gameAmount]="getGameAmount(i)"
     [frameAmount]="getFrameAmount(i)"
     [rollOne]="getRollOneOfFrame(i)"
     [rollTwo]="getRollTwoOfFrame(i)"
     [rollThree]="getRollThreeOfFrame(i)"
-  ></app-frame>
+  ></bowling-frame>
 </div>
 
-<app-roll-button
+<bowling-roll-button
   [disabled]="isGameOver"
   (rolledPin)="doMagic($event)"
   [max]="currentFrameRemainingPins"
-></app-roll-button>
+></bowling-roll-button>
+
+<h2>remaining pins: {{currentFrameRemainingPins}}</h2>
