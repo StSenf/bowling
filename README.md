@@ -1,6 +1,7 @@
-# BowlingTdd
+# Bowling game
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 11.2.2.
+This is a test project. Inspired by taking a Clean Code Workshop, which featured Robert C. Martin presenting the bowling game kata, I tried to code this app test driven. But how little did I know ... bowling really is a complex game. I could only achieve to start test driven, but ended with writing tests after building the components.
+
 
 ## Development server
 
@@ -22,6 +23,5 @@ Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.
 
 Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
 
-## Further help
+This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 11.2.2.
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
