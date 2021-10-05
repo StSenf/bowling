@@ -168,6 +168,8 @@ export class AppComponent {
    * 2nd roll: 10 pins are there if first was strike, or 10 - frameAmount.
    * 3rd roll: 10 pins are there if first and second are spare or 2 strikes,
    * or 20 - frameAmount
+   *
+   * @param frameAmount - current total count in frame
    */
   private getAvailablePins(frameAmount: number): number {
     let availablePins = 10; // at start always 10 available
@@ -192,21 +194,44 @@ export class AppComponent {
    * Calculates the current game count.
    * Calculates therefore the game count of previous frame and sums up
    * with current frame amount.
+   *
+   * @param frameAmount - current total count in frame
+   * @param rolledPin - rolled pin number
+   * @param frameRollIdx - index of the current roll in frame
    */
   private calculateGameCountInFrame(
     frameAmount: number,
     rolledPin: number,
     frameRollIdx: number
   ): number {
-    let result: number = frameAmount; // first frame default
+    let result: number;
 
-    if (this.isRegularFrame() || this.isLastFrame()) {
-      if (
-        (this.isPrevFrameSpare() && frameRollIdx === 0) ||
-        this.isPrevFrameStrike()
-      ) {
-        this.addBonusPinToPrevFrame(rolledPin);
-      }
+    // if SPARE
+    if (this.isPrevFrameSpare() && frameRollIdx === 0) {
+      this.addBonusPinToPrecedingFrame(rolledPin, 1);
+    }
+
+    // if 2 STRIKES follow each other
+    // e.g. [[10], [10], [3,2]]
+    if (
+      this.isPrevPrevFrameStrike() &&
+      this.isPrevFrameStrike() &&
+      frameRollIdx === 0
+    ) {
+      this.addBonusPinToPrecedingFrame(rolledPin, 2);
+      this.addBonusPinToPrecedingFrame(rolledPin, 1);
+    }
+
+    // if STRIKE
+    // e.g. [[10], [2,3]]
+    if (this.isPrevFrameStrike() && !this.isThirdRoll()) {
+      this.addBonusPinToPrecedingFrame(rolledPin, 1);
+    }
+
+    // Sum up
+    if (this.isFirstFrame()) {
+      result = frameAmount;
+    } else {
       result = this.sumUpCurrentGameCountWithFrameAmount(frameAmount);
     }
 
@@ -246,6 +271,7 @@ export class AppComponent {
   /** Returns true if previous frame was spare. */
   private isPrevFrameSpare(): boolean {
     return (
+      this.framesGame.get(this._currentFrameIdx - 1) &&
       this.framesGame
         .get(this._currentFrameIdx - 1)
         .rolledPins.reduce((a, b) => a + b, 0) === 10 &&
@@ -255,25 +281,44 @@ export class AppComponent {
 
   /** Returns true if previous frame was strike. */
   private isPrevFrameStrike(): boolean {
-    return this.framesGame.get(this._currentFrameIdx - 1).rolledPins[0] === 10;
+    return (
+      this.framesGame.get(this._currentFrameIdx - 1) &&
+      this.framesGame.get(this._currentFrameIdx - 1).rolledPins[0] === 10
+    );
+  }
+
+  /** Returns true if previous of previous frame was strike. */
+  private isPrevPrevFrameStrike(): boolean {
+    return (
+      this.framesGame.get(this._currentFrameIdx - 2) &&
+      this.framesGame.get(this._currentFrameIdx - 2).rolledPins[0] === 10
+    );
   }
 
   /**
-   * Adds the rolled pin as a bonus to the previous frame.
-   * Needed to add pins if prev frame was strike or spare.
+   * Adds the rolled pin as a bonus to a preceding frame.
+   *
+   * @param rolledPin - the rolled pin number
+   * @param predecessor - how many steps back we should go
    */
-  private addBonusPinToPrevFrame(rolledPin: number): void {
-    const prevFrame: IFrame = this.framesGame.get(this._currentFrameIdx - 1);
+  private addBonusPinToPrecedingFrame(
+    rolledPin: number,
+    predecessor: number
+  ): void {
+    const precedingFrame: IFrame = this.framesGame.get(
+      this._currentFrameIdx - predecessor
+    );
 
-    this.framesGame.set(this._currentFrameIdx - 1, {
-      ...prevFrame,
-      gameCount: prevFrame.gameCount + rolledPin,
+    this.framesGame.set(this._currentFrameIdx - predecessor, {
+      ...precedingFrame,
+      gameCount: precedingFrame.gameCount + rolledPin,
     });
   }
 
   /**
    * Sums up the current game amount (located in the prev frame object) with
    * the amount of the frame.
+   * @param frameAmount - current total count in frame
    */
   private sumUpCurrentGameCountWithFrameAmount(frameAmount: number): number {
     return (
