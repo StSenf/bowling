@@ -7,12 +7,7 @@ import { Component, EventEmitter, Input, Output } from "@angular/core";
 })
 export class RollButtonComponent {
   /** Maximum amount of pins that can be rolled. */
-  @Input() public set max(val: number) {
-    this._max = val;
-  }
-  public get max(): number {
-    return this._max;
-  }
+  @Input() public max = 10;
 
   /** If true the button gets disabled and can't be interacted with. */
   @Input() public disabled: boolean;
@@ -20,13 +15,11 @@ export class RollButtonComponent {
   /** Emits the currently rolled pin amount. */
   @Output() public rolledPin: EventEmitter<number> = new EventEmitter<number>();
 
-  private _max = 10;
-
   /**
    * Methode to strike pins.
    */
   public strikePins(): void {
-    const roll: number = this.rollIntegerInRange(0, this._max);
+    const roll: number = this.rollIntegerInRange(0, this.max);
     this.rolledPin.emit(roll);
   }
 

@@ -4,7 +4,7 @@
   <bowling-frame
     *ngFor="let item of [].constructor(10); let i = index;"
     [isLastFrame]="i === 9"
-    [gameAmount]="getGameAmount(i)"
+    [gameCount]="getGameCountOfFrame(i)"
     [frameAmount]="getFrameAmount(i)"
     [rollOne]="getRollOneOfFrame(i)"
     [rollTwo]="getRollTwoOfFrame(i)"
@@ -14,8 +14,8 @@
 
 <bowling-roll-button
   [disabled]="isGameOver"
-  (rolledPin)="doMagic($event)"
-  [max]="currentFrameRemainingPins"
+  (rolledPin)="playBowling($event)"
+  [max]="availablePins"
 ></bowling-roll-button>
 
-<h2>remaining pins: {{currentFrameRemainingPins}}</h2>
+<h2>available pins: {{availablePins}}</h2>
