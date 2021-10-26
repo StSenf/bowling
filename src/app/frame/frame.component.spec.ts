@@ -122,6 +122,23 @@ describe("FrameComponent", () => {
             expect(secondBox.innerHTML).toBe("X");
           }
         );
+
+        it("should render 'X' if all rolls strike", () => {
+          component.rollOne = 10;
+          component.rollTwo = 10;
+          component.rollThree = 10;
+          component.frameAmount = 30;
+          component.isLastFrame = true;
+          fixture.detectChanges();
+
+          const firstBox: HTMLElement = element.querySelector(".roll-1");
+          const secondBox: HTMLElement = element.querySelector(".roll-2");
+          const thirdBox: HTMLElement = element.querySelector(".roll-3");
+
+          expect(firstBox.innerHTML).toBe("X");
+          expect(secondBox.innerHTML).toBe("X");
+          expect(thirdBox.innerHTML.trim()).toBe("X");
+        });
       });
     });
 

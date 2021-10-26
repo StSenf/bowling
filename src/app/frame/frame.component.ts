@@ -57,7 +57,7 @@ export class FrameComponent {
   public convertToPossibleSpare(roll: number | undefined): string {
     let result = "";
 
-    if (this.isLastFrame && this.frameAmount === 20 && roll !== undefined) {
+    if (this.isLastFrame && this.frameAmount >= 20 && roll !== undefined) {
       result = "X";
     } else if (this.frameAmount === 10 && roll !== undefined) {
       result = "/";

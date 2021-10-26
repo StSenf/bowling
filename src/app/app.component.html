@@ -18,4 +18,6 @@
   [max]="availablePins"
 ></bowling-roll-button>
 
+<button [disabled]="isGameOver" (click)="playBowling(10)">Roll only 10s</button>
+
 <h2>available pins: {{availablePins}}</h2>
