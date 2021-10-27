@@ -1,5 +1,6 @@
 import { DebugElement } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { IFrame } from "../bowling.interface";
 
 import { FrameComponent } from "./frame.component";
 
@@ -8,6 +9,18 @@ describe("FrameComponent", () => {
   let fixture: ComponentFixture<FrameComponent>;
   let debugElement: DebugElement;
   let element: HTMLElement;
+
+  const framesGame = new Map<number, IFrame>([
+    [0, { rolledPins: [7, 2], gameCount: 9 }],
+    [1, { rolledPins: [10], gameCount: 31 }],
+    [2, { rolledPins: [10], gameCount: 45 }],
+    [3, { rolledPins: [2, 2], gameCount: 49 }],
+    [4, { rolledPins: [3, 7], gameCount: 62 }],
+    [5, { rolledPins: [3, 0], gameCount: 65 }],
+    [9, { rolledPins: [7, 3, 10], gameCount: 123 }],
+    [8, { rolledPins: [10, 10, 10], gameCount: 123 }],
+    [7, { rolledPins: [10, 10, 3], gameCount: 123 }],
+  ]);
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -21,13 +34,16 @@ describe("FrameComponent", () => {
     debugElement = fixture.debugElement;
     element = debugElement.nativeElement as HTMLElement;
 
+    component.index = 0; // bc input is mandatory must set default value
+    component.framesOfGame = framesGame;
+
     fixture.detectChanges();
   });
 
   describe("roll boxes", () => {
     describe("first roll box", () => {
       it("should render rolled number", () => {
-        component.rollOne = 7;
+        component.index = 0;
         fixture.detectChanges();
 
         const firstBox = element.querySelector(".roll-1");
@@ -36,7 +52,7 @@ describe("FrameComponent", () => {
       });
 
       it("should render 'X' if a 10 was rolled (STRIKE)", () => {
-        component.rollOne = 10;
+        component.index = 1;
         fixture.detectChanges();
 
         const firstBox = element.querySelector(".roll-1");
@@ -47,7 +63,7 @@ describe("FrameComponent", () => {
 
     describe("second roll box", () => {
       it("should render rolled number", () => {
-        component.rollTwo = 2;
+        component.index = 0;
         fixture.detectChanges();
 
         const secondBox: HTMLElement = element.querySelector(".roll-2");
@@ -60,23 +76,19 @@ describe("FrameComponent", () => {
           "should render '/' if first and second roll " +
             "sum up to 10 (SPARE)",
           () => {
-            component.rollOne = 1;
-            component.rollTwo = 9;
-            component.frameAmount = 10;
+            component.index = 4;
             fixture.detectChanges();
 
             const firstBox: HTMLElement = element.querySelector(".roll-1");
             const secondBox: HTMLElement = element.querySelector(".roll-2");
 
-            expect(firstBox.innerHTML).toBe("1");
+            expect(firstBox.innerHTML).toBe("3");
             expect(secondBox.innerHTML).toBe("/");
           }
         );
 
         it("should render nothing if first roll was strike", () => {
-          component.rollOne = 10;
-          component.rollTwo = 5;
-          component.frameAmount = 15;
+          component.index = 2;
           fixture.detectChanges();
 
           const firstBox: HTMLElement = element.querySelector(".roll-1");
@@ -92,15 +104,14 @@ describe("FrameComponent", () => {
           "should render '/' if first and second roll " +
             "sum up to 10 (SPARE)",
           () => {
-            component.rollOne = 2;
-            component.rollTwo = 8;
-            component.frameAmount = 10;
+            component.index = 9;
+            component.isLastFrame = true;
             fixture.detectChanges();
 
             const firstBox: HTMLElement = element.querySelector(".roll-1");
             const secondBox: HTMLElement = element.querySelector(".roll-2");
 
-            expect(firstBox.innerHTML).toBe("2");
+            expect(firstBox.innerHTML).toBe("7");
             expect(secondBox.innerHTML).toBe("/");
           }
         );
@@ -109,9 +120,7 @@ describe("FrameComponent", () => {
           "should render 'X' if first roll was strike" +
             " and second is strike",
           () => {
-            component.rollOne = 10;
-            component.rollTwo = 10;
-            component.frameAmount = 20;
+            component.index = 8;
             component.isLastFrame = true;
             fixture.detectChanges();
 
@@ -124,10 +133,7 @@ describe("FrameComponent", () => {
         );
 
         it("should render 'X' if all rolls strike", () => {
-          component.rollOne = 10;
-          component.rollTwo = 10;
-          component.rollThree = 10;
-          component.frameAmount = 30;
+          component.index = 8;
           component.isLastFrame = true;
           fixture.detectChanges();
 
@@ -163,17 +169,17 @@ describe("FrameComponent", () => {
 
       it("should render rolled number", () => {
         component.isLastFrame = true;
-        component.rollThree = 2;
+        component.index = 7;
         fixture.detectChanges();
 
         const thirdBox: HTMLElement = element.querySelector(".roll-3");
 
-        expect(thirdBox.innerHTML.trim()).toBe("2");
+        expect(thirdBox.innerHTML.trim()).toBe("3");
       });
 
       it("should render 'X' if 10 was rolled", () => {
         component.isLastFrame = true;
-        component.rollThree = 10;
+        component.index = 9;
         fixture.detectChanges();
 
         const thirdBox: HTMLElement = element.querySelector(".roll-3");
@@ -185,12 +191,12 @@ describe("FrameComponent", () => {
 
   describe("game total amount", () => {
     it("should be rendered", () => {
-      component.gameCount = 56;
+      component.index = 3;
       fixture.detectChanges();
 
       const gameAmount: HTMLElement = element.querySelector(".game-amount");
 
-      expect(gameAmount.innerHTML).toBe("56");
+      expect(gameAmount.innerHTML).toBe("49");
     });
   });
 });

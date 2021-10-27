@@ -1,8 +1,8 @@
 <div class="frame-rolls">
-  <div class="roll-1">{{ convertToPossibleStrike(rollOne) }}</div>
-  <div class="roll-2">{{ convertToPossibleSpare(rollTwo) }}</div>
+  <div class="roll-1">{{ convertToPossibleStrike(rollOneOfFrame) }}</div>
+  <div class="roll-2">{{ convertToPossibleSpare(rollTwoOfFrame) }}</div>
   <div class="roll-3" *ngIf="isLastFrame">
-    {{ convertToPossibleStrike(rollThree) }}
+    {{ convertToPossibleStrike(rollThreeOfFrame) }}
   </div>
 </div>
-<div class="game-amount">{{ gameCount }}</div>
+<div class="game-amount">{{ gameCountOfFrame }}</div>

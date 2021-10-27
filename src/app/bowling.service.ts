@@ -1,6 +1,9 @@
 import { Injectable } from "@angular/core";
 import { ICurrentFrame, IFrame } from "./bowling.interface";
 
+/**
+ * Boolean helper functions for the Bowling game.
+ */
 @Injectable({
   providedIn: "root",
 })

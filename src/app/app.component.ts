@@ -1,4 +1,5 @@
 import { Component } from "@angular/core";
+
 import { ICurrentFrame, IFrame } from "./bowling.interface";
 import { BowlingService } from "./bowling.service";
 
@@ -31,43 +32,6 @@ export class AppComponent {
   }
   public get availablePins(): number {
     return this._availablePins;
-  }
-
-  /** Returns the total amount of struck pins in this frame. */
-  public getFrameAmount(index: number): number | undefined {
-    return (
-      this.framesGame.get(index).rolledPins &&
-      this.framesGame.get(index).rolledPins.reduce((a, b) => a + b, 0)
-    );
-  }
-
-  /** Returns the stored game count of each frame. */
-  public getGameCountOfFrame(index: number): number | undefined {
-    return this.framesGame.get(index).gameCount;
-  }
-
-  /** Returns first roll of frame. */
-  public getRollOneOfFrame(index: number): number | undefined {
-    return (
-      this.framesGame.get(index).rolledPins &&
-      this.framesGame.get(index).rolledPins[0]
-    );
-  }
-
-  /** Returns second roll of frame. */
-  public getRollTwoOfFrame(index: number): number | undefined {
-    return (
-      this.framesGame.get(index).rolledPins &&
-      this.framesGame.get(index).rolledPins[1]
-    );
-  }
-
-  /** Returns third roll of frame. */
-  public getRollThreeOfFrame(index: number): number | undefined {
-    return (
-      this.framesGame.get(index).rolledPins &&
-      this.framesGame.get(index).rolledPins[2]
-    );
   }
 
   // eslint-disable-next-line @typescript-eslint/explicit-member-accessibility
@@ -105,11 +69,11 @@ export class AppComponent {
     // calculate available pins for next roll
     this.availablePins = this.getAvailablePins();
 
-    if (this.isLastRollInLastFrameReached()) {
+    if (this._bwSrv.isLastRollInLastFrameReached(this._currentFrame)) {
       this.finishGame();
     }
 
-    if (this.isLastRollInFrameReached()) {
+    if (this._bwSrv.isLastRollInFrameReached(this._currentFrame)) {
       this.gotToNextFrame();
     } else {
       this.gotToNextRoll();
@@ -231,16 +195,6 @@ export class AppComponent {
     }
 
     return availablePins;
-  }
-
-  /** Returns true if the last roll in frame is reached. */
-  private isLastRollInFrameReached(): boolean {
-    return this._bwSrv.isLastRollInFrameReached(this._currentFrame);
-  }
-
-  /** Returns true if last roll in last frame is reached. */
-  private isLastRollInLastFrameReached(): boolean {
-    return this._bwSrv.isLastRollInLastFrameReached(this._currentFrame);
   }
 
   /**
