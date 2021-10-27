@@ -1,7 +1,7 @@
-import { IFrame } from "./bowling.interface";
+import { ICurrentFrame, IFrame } from "./bowling.interface";
 import { BowlingService } from "./bowling.service";
 
-fdescribe("BowlingService", () => {
+describe("BowlingService", () => {
   let service: BowlingService;
 
   beforeEach(() => {
@@ -62,23 +62,31 @@ fdescribe("BowlingService", () => {
 
   describe("#isFirstRollStrike", () => {
     it("returns true if second roll and frame amount is 10", () => {
-      expect(service.isFirstRollStrike(1, 10)).toBe(true);
+      const frame: ICurrentFrame = { index: 0, rollIndex: 0, amount: 10 };
+
+      expect(service.isFirstRollStrike(frame)).toBe(true);
     });
     it("returns false if not second roll", () => {
-      expect(service.isFirstRollStrike(2, 10)).toBe(false);
+      const frame: ICurrentFrame = { index: 0, rollIndex: 1, amount: 10 };
+
+      expect(service.isFirstRollStrike(frame)).toBe(false);
     });
-    it("returns false if second roll but frame amount less 10", () => {
-      expect(service.isFirstRollStrike(1, 6)).toBe(false);
+    it("returns false if first roll but frame amount less 10", () => {
+      const frame: ICurrentFrame = { index: 0, rollIndex: 0, amount: 6 };
+
+      expect(service.isFirstRollStrike(frame)).toBe(false);
     });
   });
 
   describe("#isPrevFrameSpare", () => {
+    const frame: ICurrentFrame = { index: 1, rollIndex: 0, amount: 2 };
+
     it("returns true if prev frame has spare", () => {
       const framesGame = new Map<number, IFrame>([
         [0, { rolledPins: [4, 6], gameCount: 10 }],
       ]);
 
-      expect(service.isPrevFrameSpare(framesGame, 1)).toBe(true);
+      expect(service.isPrevFrameSpare(framesGame, frame)).toBe(true);
     });
 
     it("returns false if prev frame has no spare", () => {
@@ -86,17 +94,19 @@ fdescribe("BowlingService", () => {
         [0, { rolledPins: [2, 6], gameCount: 8 }],
       ]);
 
-      expect(service.isPrevFrameSpare(framesGame, 1)).toBe(false);
+      expect(service.isPrevFrameSpare(framesGame, frame)).toBe(false);
     });
   });
 
   describe("#isPrevFrameStrike", () => {
+    const frame: ICurrentFrame = { index: 1, rollIndex: 0, amount: 2 };
+
     it("returns true if prev frame has strike", () => {
       const framesGame = new Map<number, IFrame>([
         [0, { rolledPins: [10], gameCount: 10 }],
       ]);
 
-      expect(service.isPrevFrameStrike(framesGame, 1)).toBe(true);
+      expect(service.isPrevFrameStrike(framesGame, frame)).toBe(true);
     });
 
     it("returns false if prev frame has no strike", () => {
@@ -104,18 +114,20 @@ fdescribe("BowlingService", () => {
         [0, { rolledPins: [2, 2], gameCount: 4 }],
       ]);
 
-      expect(service.isPrevFrameStrike(framesGame, 1)).toBe(false);
+      expect(service.isPrevFrameStrike(framesGame, frame)).toBe(false);
     });
   });
 
   describe("#isPrevPrevFrameStrike", () => {
+    const frame: ICurrentFrame = { index: 2, rollIndex: 0, amount: 2 };
+
     it("returns true if prev prev frame has strike", () => {
       const framesGame = new Map<number, IFrame>([
         [0, { rolledPins: [10], gameCount: 10 }],
         [1, { rolledPins: [1, 1], gameCount: 14 }],
       ]);
 
-      expect(service.isPrevPrevFrameStrike(framesGame, 2)).toBe(true);
+      expect(service.isPrevPrevFrameStrike(framesGame, frame)).toBe(true);
     });
 
     it("returns false if prev prev frame has no strike", () => {
@@ -124,7 +136,47 @@ fdescribe("BowlingService", () => {
         [1, { rolledPins: [10], gameCount: 12 }],
       ]);
 
-      expect(service.isPrevPrevFrameStrike(framesGame, 2)).toBe(false);
+      expect(service.isPrevPrevFrameStrike(framesGame, frame)).toBe(false);
+    });
+  });
+
+  describe("#isLastRollInFrameReached", () => {
+    it("returns true if first roll is strike", () => {
+      const frame: ICurrentFrame = { index: 0, rollIndex: 0, amount: 10 };
+
+      expect(service.isLastRollInFrameReached(frame)).toBe(true);
+    });
+
+    it("returns true if second roll done", () => {
+      const frame: ICurrentFrame = { index: 1, rollIndex: 1, amount: 8 };
+
+      expect(service.isLastRollInFrameReached(frame)).toBe(true);
+    });
+
+    it("returns false if first roll done", () => {
+      const frame: ICurrentFrame = { index: 1, rollIndex: 0, amount: 8 };
+
+      expect(service.isLastRollInFrameReached(frame)).toBe(false);
+    });
+  });
+
+  describe("#isLastRollInLastFrameReached", () => {
+    it("returns true if last frame and first + second roll less 10", () => {
+      const frame: ICurrentFrame = { index: 9, rollIndex: 1, amount: 8 };
+
+      expect(service.isLastRollInLastFrameReached(frame)).toBe(true);
+    });
+
+    it("returns true if last frame and third roll done", () => {
+      const frame: ICurrentFrame = { index: 9, rollIndex: 2, amount: 18 };
+
+      expect(service.isLastRollInLastFrameReached(frame)).toBe(true);
+    });
+
+    it("returns false if not in last frame", () => {
+      const frame: ICurrentFrame = { index: 7, rollIndex: 1, amount: 8 };
+
+      expect(service.isLastRollInLastFrameReached(frame)).toBe(false);
     });
   });
 });
