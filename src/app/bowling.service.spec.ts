@@ -1,4 +1,4 @@
-import { ICurrentFrame, IFrame } from "./bowling.interface";
+import { ICurrentFrameCount, IFrame } from "./bowling.interface";
 import { BowlingService } from "./bowling.service";
 
 describe("BowlingService", () => {
@@ -62,24 +62,24 @@ describe("BowlingService", () => {
 
   describe("#isFirstRollStrike", () => {
     it("returns true if second roll and frame amount is 10", () => {
-      const frame: ICurrentFrame = { index: 0, rollIndex: 0, amount: 10 };
+      const frame: ICurrentFrameCount = { index: 0, rollIndex: 0, amount: 10 };
 
       expect(service.isFirstRollStrike(frame)).toBe(true);
     });
     it("returns false if not second roll", () => {
-      const frame: ICurrentFrame = { index: 0, rollIndex: 1, amount: 10 };
+      const frame: ICurrentFrameCount = { index: 0, rollIndex: 1, amount: 10 };
 
       expect(service.isFirstRollStrike(frame)).toBe(false);
     });
     it("returns false if first roll but frame amount less 10", () => {
-      const frame: ICurrentFrame = { index: 0, rollIndex: 0, amount: 6 };
+      const frame: ICurrentFrameCount = { index: 0, rollIndex: 0, amount: 6 };
 
       expect(service.isFirstRollStrike(frame)).toBe(false);
     });
   });
 
   describe("#isPrevFrameSpare", () => {
-    const frame: ICurrentFrame = { index: 1, rollIndex: 0, amount: 2 };
+    const frame: ICurrentFrameCount = { index: 1, rollIndex: 0 };
 
     it("returns true if prev frame has spare", () => {
       const framesGame = new Map<number, IFrame>([
@@ -99,7 +99,7 @@ describe("BowlingService", () => {
   });
 
   describe("#isPrevFrameStrike", () => {
-    const frame: ICurrentFrame = { index: 1, rollIndex: 0, amount: 2 };
+    const frame: ICurrentFrameCount = { index: 1, rollIndex: 0 };
 
     it("returns true if prev frame has strike", () => {
       const framesGame = new Map<number, IFrame>([
@@ -119,7 +119,7 @@ describe("BowlingService", () => {
   });
 
   describe("#isPrevPrevFrameStrike", () => {
-    const frame: ICurrentFrame = { index: 2, rollIndex: 0, amount: 2 };
+    const frame: ICurrentFrameCount = { index: 2, rollIndex: 0 };
 
     it("returns true if prev prev frame has strike", () => {
       const framesGame = new Map<number, IFrame>([
@@ -142,19 +142,19 @@ describe("BowlingService", () => {
 
   describe("#isLastRollInFrameReached", () => {
     it("returns true if first roll is strike", () => {
-      const frame: ICurrentFrame = { index: 0, rollIndex: 0, amount: 10 };
+      const frame: ICurrentFrameCount = { index: 0, rollIndex: 0, amount: 10 };
 
       expect(service.isLastRollInFrameReached(frame)).toBe(true);
     });
 
     it("returns true if second roll done", () => {
-      const frame: ICurrentFrame = { index: 1, rollIndex: 1, amount: 8 };
+      const frame: ICurrentFrameCount = { index: 1, rollIndex: 1, amount: 8 };
 
       expect(service.isLastRollInFrameReached(frame)).toBe(true);
     });
 
     it("returns false if first roll done", () => {
-      const frame: ICurrentFrame = { index: 1, rollIndex: 0, amount: 8 };
+      const frame: ICurrentFrameCount = { index: 1, rollIndex: 0, amount: 8 };
 
       expect(service.isLastRollInFrameReached(frame)).toBe(false);
     });
@@ -162,19 +162,19 @@ describe("BowlingService", () => {
 
   describe("#isLastRollInLastFrameReached", () => {
     it("returns true if last frame and first + second roll less 10", () => {
-      const frame: ICurrentFrame = { index: 9, rollIndex: 1, amount: 8 };
+      const frame: ICurrentFrameCount = { index: 9, rollIndex: 1, amount: 8 };
 
       expect(service.isLastRollInLastFrameReached(frame)).toBe(true);
     });
 
     it("returns true if last frame and third roll done", () => {
-      const frame: ICurrentFrame = { index: 9, rollIndex: 2, amount: 18 };
+      const frame: ICurrentFrameCount = { index: 9, rollIndex: 2, amount: 18 };
 
       expect(service.isLastRollInLastFrameReached(frame)).toBe(true);
     });
 
     it("returns false if not in last frame", () => {
-      const frame: ICurrentFrame = { index: 7, rollIndex: 1, amount: 8 };
+      const frame: ICurrentFrameCount = { index: 7, rollIndex: 1, amount: 8 };
 
       expect(service.isLastRollInLastFrameReached(frame)).toBe(false);
     });

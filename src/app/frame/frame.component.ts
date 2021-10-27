@@ -1,6 +1,7 @@
 import { Component, Input } from "@angular/core";
 
 import { IFrame } from "../bowling.interface";
+import { BowlingService } from "../bowling.service";
 
 @Component({
   selector: "bowling-frame",
@@ -46,10 +47,7 @@ export class FrameComponent {
 
   /** Returns the total amount of struck pins in this frame. */
   public get frameAmount(): number | undefined {
-    return (
-      this.framesOfGame.get(this.index).rolledPins &&
-      this.framesOfGame.get(this.index).rolledPins.reduce((a, b) => a + b, 0)
-    );
+    return this._bwSrv.getFrameAmount(this.framesOfGame, this.index);
   }
 
   /** Returns the stored game count of each frame. */
@@ -71,6 +69,9 @@ export class FrameComponent {
       this.framesOfGame.get(this.index).rolledPins[1]
     );
   }
+
+  // eslint-disable-next-line @typescript-eslint/explicit-member-accessibility
+  constructor(private _bwSrv: BowlingService) {}
 
   /**
    * Converts the rolled number into a string.

@@ -10,13 +10,12 @@ export interface IFrame {
 
 /**
  * Interface that is used during the game for
- * calculation and storing of all frames.
+ * orientation which frame is the current.
  */
-export interface ICurrentFrame extends IFrame {
+export interface ICurrentFrameCount {
   /** index of the frame in the game */
   index: number;
-  /** sum of rolled pins of the current frame */
-  amount: number;
+  amount?: number;
   /**
    * roll index in current frame
    * can only be 0 or 1 (in last frame 2 is also possible)

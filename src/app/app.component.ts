@@ -1,6 +1,6 @@
 import { Component } from "@angular/core";
 
-import { ICurrentFrame, IFrame } from "./bowling.interface";
+import { ICurrentFrameCount, IFrame } from "./bowling.interface";
 import { BowlingService } from "./bowling.service";
 
 @Component({
@@ -14,16 +14,16 @@ export class AppComponent {
 
   /** Holds all frames with their rolled pins. */
   public framesGame = new Map<number, IFrame>([
-    [0, {}],
-    [1, {}],
-    [2, {}],
-    [3, {}],
-    [4, {}],
-    [5, {}],
-    [6, {}],
-    [7, {}],
-    [8, {}],
-    [9, {}],
+    [0, { rolledPins: [] }],
+    [1, { rolledPins: [] }],
+    [2, { rolledPins: [] }],
+    [3, { rolledPins: [] }],
+    [4, { rolledPins: [] }],
+    [5, { rolledPins: [] }],
+    [6, { rolledPins: [] }],
+    [7, { rolledPins: [] }],
+    [8, { rolledPins: [] }],
+    [9, { rolledPins: [] }],
   ]);
 
   /** Maximum amount of pins that can be rolled. */
@@ -39,35 +39,25 @@ export class AppComponent {
 
   // internal frame counts
   private _availablePins = 10;
-  private _currentFrame: ICurrentFrame = {
+  private _currentFrame: ICurrentFrameCount = {
     amount: 0,
     index: 0,
     rollIndex: 0,
-    rolledPins: [],
-    gameCount: 0,
   };
 
   public playBowling(rolledPin: number): void {
-    this._currentFrame.rolledPins.push(rolledPin);
+    // sum up frame amount
     this._currentFrame.amount = this._currentFrame.amount + rolledPin;
 
-    // save the rolled pins
-    this.framesGame.set(this._currentFrame.index, {
-      rolledPins: this._currentFrame.rolledPins,
-    });
-
-    // calculate the game count
-    this._currentFrame.gameCount = this.calculateGameCountInFrame(rolledPin);
-
-    // save the game count
+    // save the rolled pins and calculated game count
     const frameData = this.framesGame.get(this._currentFrame.index);
     this.framesGame.set(this._currentFrame.index, {
-      ...frameData,
-      gameCount: this._currentFrame.gameCount,
+      rolledPins: [...frameData.rolledPins, rolledPin],
+      gameCount: this.calculateGameCountInFrame(rolledPin),
     });
 
     // calculate available pins for next roll
-    this.availablePins = this.getAvailablePins();
+    this.availablePins = this.getAvailablePins(this._currentFrame);
 
     if (this._bwSrv.isLastRollInLastFrameReached(this._currentFrame)) {
       this.finishGame();
@@ -143,7 +133,6 @@ export class AppComponent {
     const precedingFrame: IFrame = this.framesGame.get(
       this._currentFrame.index - predecessor
     );
-
     this.framesGame.set(this._currentFrame.index - predecessor, {
       ...precedingFrame,
       gameCount: precedingFrame.gameCount + rolledPin,
@@ -168,29 +157,26 @@ export class AppComponent {
    * 2nd roll: 10 - struck pins
    * 3rd roll: 10 (if 1st and 2nd are spare or 2 strikes), or 20 - struck pins
    */
-  private getAvailablePins(): number {
+  private getAvailablePins(currentFrame: ICurrentFrameCount): number {
     let availablePins = 10; // at start always 10 available
 
     if (
-      this._bwSrv.isFirstRoll(this._currentFrame.rollIndex) &&
-      this._currentFrame.amount !== 10
+      this._bwSrv.isFirstRoll(currentFrame.rollIndex) &&
+      currentFrame.amount !== 10
     ) {
-      availablePins = 10 - this._currentFrame.amount;
+      availablePins = 10 - currentFrame.amount;
     }
 
     // for third roll in last frame
     if (
-      this._bwSrv.isLastFrame(this._currentFrame.index) &&
-      this._bwSrv.isSecondRoll(this._currentFrame.rollIndex) &&
-      this._currentFrame.amount >= 10
+      this._bwSrv.isLastFrame(currentFrame.index) &&
+      this._bwSrv.isSecondRoll(currentFrame.rollIndex) &&
+      currentFrame.amount >= 10
     ) {
-      if (
-        this._currentFrame.amount === 10 ||
-        this._currentFrame.amount === 20
-      ) {
+      if (currentFrame.amount === 10 || currentFrame.amount === 20) {
         availablePins = 10;
       } else {
-        availablePins = 20 - this._currentFrame.amount;
+        availablePins = 20 - currentFrame.amount;
       }
     }
 
@@ -207,8 +193,6 @@ export class AppComponent {
       amount: 0,
       index,
       rollIndex: 0,
-      rolledPins: [],
-      gameCount: 0,
     };
   }
 
