@@ -1,11 +1,7 @@
 import { Component } from "@angular/core";
 
-interface IFrame {
-  /** list of the struck pins in the frame, e.g. [5, 4] */
-  rolledPins?: number[];
-  /** current game count that is rendered inside the frame */
-  gameCount?: number;
-}
+import { ICurrentFrameCount, IFrame } from "./bowling.interface";
+import { BowlingService } from "./bowling.service";
 
 @Component({
   selector: "app-root",
@@ -18,16 +14,16 @@ export class AppComponent {
 
   /** Holds all frames with their rolled pins. */
   public framesGame = new Map<number, IFrame>([
-    [0, {}],
-    [1, {}],
-    [2, {}],
-    [3, {}],
-    [4, {}],
-    [5, {}],
-    [6, {}],
-    [7, {}],
-    [8, {}],
-    [9, {}],
+    [0, { rolledPins: [] }],
+    [1, { rolledPins: [] }],
+    [2, { rolledPins: [] }],
+    [3, { rolledPins: [] }],
+    [4, { rolledPins: [] }],
+    [5, { rolledPins: [] }],
+    [6, { rolledPins: [] }],
+    [7, { rolledPins: [] }],
+    [8, { rolledPins: [] }],
+    [9, { rolledPins: [] }],
   ]);
 
   /** Maximum amount of pins that can be rolled. */
@@ -38,156 +34,40 @@ export class AppComponent {
     return this._availablePins;
   }
 
-  /** Returns the total amount of struck pins in this frame. */
-  public getFrameAmount(index: number): number | undefined {
-    return (
-      this.framesGame.get(index).rolledPins &&
-      this.framesGame.get(index).rolledPins.reduce((a, b) => a + b, 0)
-    );
-  }
-
-  /** Returns the stored game count of each frame. */
-  public getGameCountOfFrame(index: number): number | undefined {
-    return this.framesGame.get(index).gameCount;
-  }
-
-  /** Returns first roll of frame. */
-  public getRollOneOfFrame(index: number): number | undefined {
-    return (
-      this.framesGame.get(index).rolledPins &&
-      this.framesGame.get(index).rolledPins[0]
-    );
-  }
-
-  /** Returns second roll of frame. */
-  public getRollTwoOfFrame(index: number): number | undefined {
-    return (
-      this.framesGame.get(index).rolledPins &&
-      this.framesGame.get(index).rolledPins[1]
-    );
-  }
-
-  /** Returns third roll of frame. */
-  public getRollThreeOfFrame(index: number): number | undefined {
-    return (
-      this.framesGame.get(index).rolledPins &&
-      this.framesGame.get(index).rolledPins[2]
-    );
-  }
+  // eslint-disable-next-line @typescript-eslint/explicit-member-accessibility
+  constructor(private _bwSrv: BowlingService) {}
 
   // internal frame counts
-  private _currentFrameIdx = 0;
-  private _currentFrameAmount = 0;
-  private _currentFrameRollIdx = 0;
-  private _currentFrameRolledPins: number[] = [];
   private _availablePins = 10;
-  private _currentGameCountInFrame = 0;
+  private _currentFrame: ICurrentFrameCount = {
+    amount: 0,
+    index: 0,
+    rollIndex: 0,
+  };
 
   public playBowling(rolledPin: number): void {
-    if (
-      (this.isFirstFrame() || this.isRegularFrame()) &&
-      (this.isThirdRoll() || this.isFirstRollStrike())
-    ) {
-      this.gotToNextFrame();
-      this.clearInternalFrameCounts();
+    // sum up frame amount
+    this._currentFrame.amount = this._currentFrame.amount + rolledPin;
+
+    // save the rolled pins and calculated game count
+    const frameData = this.framesGame.get(this._currentFrame.index);
+    this.framesGame.set(this._currentFrame.index, {
+      rolledPins: [...frameData.rolledPins, rolledPin],
+      gameCount: this.calculateGameCountInFrame(rolledPin),
+    });
+
+    // calculate available pins for next roll
+    this.availablePins = this.getAvailablePins(this._currentFrame);
+
+    if (this._bwSrv.isLastRollInLastFrameReached(this._currentFrame)) {
+      this.finishGame();
     }
 
-    this._currentFrameRolledPins.push(rolledPin);
-    this._currentFrameAmount = this._currentFrameAmount + rolledPin;
-
-    // save the rolled pins
-    this.framesGame.set(this._currentFrameIdx, {
-      rolledPins: this._currentFrameRolledPins,
-    });
-
-    // calculate the game count
-    this._currentGameCountInFrame = this.calculateGameCountInFrame(
-      this._currentFrameAmount,
-      rolledPin,
-      this._currentFrameRollIdx
-    );
-
-    // save the game count
-    const frameData = this.framesGame.get(this._currentFrameIdx);
-    this.framesGame.set(this._currentFrameIdx, {
-      ...frameData,
-      gameCount: this._currentGameCountInFrame,
-    });
-
-    if (
-      (this.isLastFrame() &&
-        this.isSecondRoll() &&
-        this._currentFrameAmount < 10) ||
-      (this.isLastFrame() && this.isThirdRoll())
-    ) {
-      this.finishGame();
+    if (this._bwSrv.isLastRollInFrameReached(this._currentFrame)) {
+      this.gotToNextFrame();
     } else {
       this.gotToNextRoll();
     }
-
-    this.availablePins = this.getAvailablePins(this._currentFrameAmount);
-  }
-
-  /**
-   * Counts up the current frame index.
-   * The frame index is used to save the rolls to the correct
-   * position of the Map.
-   */
-  private gotToNextFrame(): void {
-    this._currentFrameIdx++;
-  }
-
-  /**
-   * Clears all internal frame counts for the new frame we are located at.
-   */
-  private clearInternalFrameCounts(): void {
-    this._currentFrameAmount = 0;
-    this._currentFrameRollIdx = 0;
-    this._currentFrameRolledPins = [];
-    this._currentGameCountInFrame = 0;
-    this._availablePins = 10;
-  }
-
-  /** Counts up the current roll index. */
-  private gotToNextRoll(): void {
-    this._currentFrameRollIdx++;
-  }
-
-  /**
-   * Finishes game by setting boolean flag to true.
-   * Button can't be clicked anymore.
-   */
-  private finishGame(): void {
-    this.isGameOver = true;
-  }
-
-  /**
-   * Returns how many pins are still standing resp. are there to strike.
-   *
-   * 1st roll: 10 pins are there.
-   * 2nd roll: 10 pins are there if first was strike, or 10 - frameAmount.
-   * 3rd roll: 10 pins are there if first and second are spare or 2 strikes,
-   * or 20 - frameAmount
-   *
-   * @param frameAmount - current total count in frame
-   */
-  private getAvailablePins(frameAmount: number): number {
-    let availablePins = 10; // at start always 10 available
-
-    if (this.isSecondRoll() && frameAmount !== 10) {
-      availablePins = 10 - frameAmount;
-    }
-
-    // third roll in last frame
-    if (this.isLastFrame() && this.isThirdRoll() && frameAmount >= 10) {
-      if (frameAmount === 10 || frameAmount === 20) {
-        availablePins = 10;
-      } else {
-        availablePins = 20 - frameAmount;
-      }
-    }
-
-    return availablePins;
   }
 
   /**
@@ -195,28 +75,25 @@ export class AppComponent {
    * Calculates therefore the game count of previous frame and sums up
    * with current frame amount.
    *
-   * @param frameAmount - current total count in frame
    * @param rolledPin - rolled pin number
-   * @param frameRollIdx - index of the current roll in frame
    */
-  private calculateGameCountInFrame(
-    frameAmount: number,
-    rolledPin: number,
-    frameRollIdx: number
-  ): number {
+  private calculateGameCountInFrame(rolledPin: number): number {
     let result: number;
 
     // if SPARE
-    if (this.isPrevFrameSpare() && frameRollIdx === 0) {
+    if (
+      this._bwSrv.isPrevFrameSpare(this.framesGame, this._currentFrame) &&
+      this._bwSrv.isFirstRoll(this._currentFrame.rollIndex)
+    ) {
       this.addBonusPinToPrecedingFrame(rolledPin, 1);
     }
 
     // if 2 STRIKES follow each other
     // e.g. [[10], [10], [3,2]]
     if (
-      this.isPrevPrevFrameStrike() &&
-      this.isPrevFrameStrike() &&
-      frameRollIdx === 0
+      this._bwSrv.isPrevPrevFrameStrike(this.framesGame, this._currentFrame) &&
+      this._bwSrv.isPrevFrameStrike(this.framesGame, this._currentFrame) &&
+      this._bwSrv.isFirstRoll(this._currentFrame.rollIndex)
     ) {
       this.addBonusPinToPrecedingFrame(rolledPin, 2);
       this.addBonusPinToPrecedingFrame(rolledPin, 1);
@@ -224,75 +101,23 @@ export class AppComponent {
 
     // if STRIKE
     // e.g. [[10], [2,3]]
-    if (this.isPrevFrameStrike() && !this.isThirdRoll()) {
+    if (
+      this._bwSrv.isPrevFrameStrike(this.framesGame, this._currentFrame) &&
+      !this._bwSrv.isThirdRoll(this._currentFrame.rollIndex)
+    ) {
       this.addBonusPinToPrecedingFrame(rolledPin, 1);
     }
 
     // Sum up
-    if (this.isFirstFrame()) {
-      result = frameAmount;
+    if (this._bwSrv.isFirstFrame(this._currentFrame.index)) {
+      result = this._currentFrame.amount;
     } else {
-      result = this.sumUpCurrentGameCountWithFrameAmount(frameAmount);
+      result = this.sumUpCurrentGameCountWithFrameAmount(
+        this._currentFrame.amount
+      );
     }
 
     return result;
-  }
-
-  /** Returns true if NOT first or last frame. */
-  private isRegularFrame(): boolean {
-    return this._currentFrameIdx > 0 && this._currentFrameIdx < 9;
-  }
-
-  /** Returns true if last frame. */
-  private isLastFrame(): boolean {
-    return this._currentFrameIdx === 9;
-  }
-
-  /** Returns true if first frame. */
-  private isFirstFrame(): boolean {
-    return this._currentFrameIdx === 0;
-  }
-
-  /** Returns true if second roll in frame. */
-  private isSecondRoll(): boolean {
-    return this._currentFrameRollIdx === 1;
-  }
-
-  /** Returns true if third roll in frame. */
-  private isThirdRoll(): boolean {
-    return this._currentFrameRollIdx === 2;
-  }
-
-  /** Returns true if first roll in frame was strike. */
-  private isFirstRollStrike(): boolean {
-    return this.isSecondRoll() && this._currentFrameAmount === 10;
-  }
-
-  /** Returns true if previous frame was spare. */
-  private isPrevFrameSpare(): boolean {
-    return (
-      this.framesGame.get(this._currentFrameIdx - 1) &&
-      this.framesGame
-        .get(this._currentFrameIdx - 1)
-        .rolledPins.reduce((a, b) => a + b, 0) === 10 &&
-      this.framesGame.get(this._currentFrameIdx - 1).rolledPins[0] !== 10
-    );
-  }
-
-  /** Returns true if previous frame was strike. */
-  private isPrevFrameStrike(): boolean {
-    return (
-      this.framesGame.get(this._currentFrameIdx - 1) &&
-      this.framesGame.get(this._currentFrameIdx - 1).rolledPins[0] === 10
-    );
-  }
-
-  /** Returns true if previous of previous frame was strike. */
-  private isPrevPrevFrameStrike(): boolean {
-    return (
-      this.framesGame.get(this._currentFrameIdx - 2) &&
-      this.framesGame.get(this._currentFrameIdx - 2).rolledPins[0] === 10
-    );
   }
 
   /**
@@ -306,10 +131,9 @@ export class AppComponent {
     predecessor: number
   ): void {
     const precedingFrame: IFrame = this.framesGame.get(
-      this._currentFrameIdx - predecessor
+      this._currentFrame.index - predecessor
     );
-
-    this.framesGame.set(this._currentFrameIdx - predecessor, {
+    this.framesGame.set(this._currentFrame.index - predecessor, {
       ...precedingFrame,
       gameCount: precedingFrame.gameCount + rolledPin,
     });
@@ -322,7 +146,66 @@ export class AppComponent {
    */
   private sumUpCurrentGameCountWithFrameAmount(frameAmount: number): number {
     return (
-      this.framesGame.get(this._currentFrameIdx - 1).gameCount + frameAmount
+      this.framesGame.get(this._currentFrame.index - 1).gameCount + frameAmount
     );
+  }
+
+  /**
+   * Returns how many pins are still standing resp. are there to strike.
+   *
+   * 1st roll: 10
+   * 2nd roll: 10 - struck pins
+   * 3rd roll: 10 (if 1st and 2nd are spare or 2 strikes), or 20 - struck pins
+   */
+  private getAvailablePins(currentFrame: ICurrentFrameCount): number {
+    let availablePins = 10; // at start always 10 available
+
+    if (
+      this._bwSrv.isFirstRoll(currentFrame.rollIndex) &&
+      currentFrame.amount !== 10
+    ) {
+      availablePins = 10 - currentFrame.amount;
+    }
+
+    // for third roll in last frame
+    if (
+      this._bwSrv.isLastFrame(currentFrame.index) &&
+      this._bwSrv.isSecondRoll(currentFrame.rollIndex) &&
+      currentFrame.amount >= 10
+    ) {
+      if (currentFrame.amount === 10 || currentFrame.amount === 20) {
+        availablePins = 10;
+      } else {
+        availablePins = 20 - currentFrame.amount;
+      }
+    }
+
+    return availablePins;
+  }
+
+  /**
+   * Counts up the current frame index and clears
+   * the internal counts for the new index.
+   */
+  private gotToNextFrame(): void {
+    const index: number = this._currentFrame.index + 1;
+    this._currentFrame = {
+      amount: 0,
+      index,
+      rollIndex: 0,
+    };
+  }
+
+  /** Counts up the current roll index. */
+  private gotToNextRoll(): void {
+    this._currentFrame.rollIndex++;
+  }
+
+  /**
+   * Finishes game by setting boolean flag to true.
+   * Button can't be clicked anymore.
+   */
+  private finishGame(): void {
+    this.isGameOver = true;
   }
 }
